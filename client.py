@@ -2,6 +2,7 @@ import argparse
 import asyncio
 import logging
 import math
+import traceback
 
 import socketio
 from av import VideoFrame
@@ -117,25 +118,28 @@ class GymVideoStreamTrack(VideoStreamTrack):
 
 
 async def run_gym_env(video_track):
-    ENV = "Breakout-v0"
-    print("make {}".format(ENV))
-    env = gym.make(ENV)
-    print("reset {}".format(ENV))
-    obs = env.reset()
+    try:
+        ENV = "CartPole-v1"
+        print("make {}".format(ENV))
+        env = gym.make(ENV)
+        print("reset {}".format(ENV))
+        obs = env.reset()
 
-    while True:
-        img = env.render(mode="rgb_array")
+        while True:
+            img = env.render(mode="rgb_array")
 
-        await video_track.put_frame(img)
+            await video_track.put_frame(img)
 
-        action = env.action_space.sample()  # your agent here (this takes random actions)
-        obs, reward, done, info = env.step(action)
+            action = env.action_space.sample()  # your agent here (this takes random actions)
+            obs, reward, done, info = env.step(action)
 
-        if done:
-            obs = env.reset()
+            if done:
+                obs = env.reset()
 
-    env.close()
+        env.close()
 
+    except Exception as e:
+        traceback.print_exc()
 
 async def run(host, port, pc, video_track, recorder, signaling):
     await signaling.connect(host, port)

@@ -3,8 +3,11 @@ import socketio
 
 ROOM = "room"
 
-sio = socketio.AsyncServer(cors_allowed_origins="*")
+
 app = web.Application()
+app.add_routes([web.static("/web", "public/")])
+
+sio = socketio.AsyncServer(cors_allowed_origins="*")
 sio.attach(app)
 
 
@@ -30,7 +33,7 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--host", type=str, default="0.0.0.0")
+    parser.add_argument("--host", type=str, default="localhost")
     parser.add_argument("--port", type=int, default=9999)
 
     args = parser.parse_args()

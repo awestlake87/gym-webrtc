@@ -3,6 +3,7 @@ const PC_CONFIG = {}
 let socket;
 
 document.getElementById("sigHost").value = window.location.hostname
+document.getElementById("sigPort").value = window.location.port
 
 let connect = (url) => {
     socket = io(url, { autoConnect: false })
@@ -14,7 +15,7 @@ let connect = (url) => {
     socket.on("ready", () => {
         console.log("Ready");
         createPeerConnection();
-        
+
         if (localStream) {
             sendOffer();
         }
@@ -36,14 +37,24 @@ document.getElementById("startCapture").onclick = () => {
             console.log("Stream found");
             localStream = stream;
 
-            connect("http://" + document.getElementById("sigHost").value + ":9999")
+            connect(
+                "http://"
+                + document.getElementById("sigHost").value
+                + ":"
+                + document.getElementById("sigPort").value
+            )
         })
         .catch(error => {
             console.error("Stream not found: ", error);
         });
 };
 document.getElementById("startReceive").onclick = () => {
-    connect("http://" + document.getElementById("sigHost").value + ":9999")
+    connect(
+        "http://"
+        + document.getElementById("sigHost").value
+        + ":"
+        + document.getElementById("sigPort").value
+    )
 };
 
 let createPeerConnection = () => {
@@ -104,11 +115,11 @@ let handleSignalingData = (data) => {
             pc.setRemoteDescription(new RTCSessionDescription(data));
             sendAnswer();
             break;
-        
+
         case "answer":
             pc.setRemoteDescription(new RTCSessionDescription(data));
             break;
-        
+
         case "candidate":
             pc.addIceCandidate(new RTCIceCandidate(data.candidate));
             break;
